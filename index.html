@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe Neto</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0b1b3a; color: #1a1a1a; font-size: 14px; }
+    .page-wrapper { max-width: 960px; margin: 30px auto; padding: 0 16px 60px; }
+    .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 14px 20px; background: #071026; border-radius: 10px; border: 1px solid #1e3a6e; }
+    .top-bar h1 { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.05em; text-transform: uppercase; }
+    .btn-pdf { display: flex; align-items: center; gap: 8px; background: #e8b400; color: #1a1a1a; border: none; padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-pdf:hover { background: #f5c800; }
+    .block { background: #fff; border: 1px solid #1e3a6e; border-radius: 12px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.25); }
+    .block-header { display: flex; align-items: center; gap: 8px; padding: 9px 14px; background: #0d2148; border-bottom: 1px solid #1e3a6e; }
+    .blabel { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
+    .b0{background:#EEEDFE;color:#3C3489;} .b1{background:#E1F5EE;color:#085041;} .b2{background:#FAEEDA;color:#854F0B;} .b3{background:#E6F1FB;color:#0C447C;} .b4{background:#FAECE7;color:#993C1D;} .b5{background:#EAF3DE;color:#3B6D11;} .b6{background:#EEEDFE;color:#3C3489;}
+    .bh { font-size: 13px; font-weight: 600; color: #fff; }
+    .block-body { padding: 16px; }
+    .row { display: grid; gap: 10px; margin-bottom: 10px; }
+    .row:last-child { margin-bottom: 0; }
+    .r2{grid-template-columns:1fr 1fr;} .r3{grid-template-columns:1fr 1fr 1fr;} .r4{grid-template-columns:repeat(4,minmax(0,1fr));}
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .flabel { font-size: 10px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .fval { font-size: 13px; color: #1a1a1a; border: 1px solid #e0e0e0; border-radius: 7px; padding: 7px 10px; background: #fafafa; min-height: 34px; }
+    input.fval, select.fval, textarea.fval { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; outline: none; }
+    input.fval:focus, select.fval:focus, textarea.fval:focus { border-color: #7F77DD; }
+    select.fval { cursor: pointer; }
+    textarea.fval { resize: vertical; line-height: 1.6; white-space: pre-wrap; word-break: break-word; min-height: 80px; }
+    .divider { height: 1px; background: #e0e0e0; margin: 14px 0; }
+    .player-top { display: flex; gap: 16px; align-items: flex-start; }
+    .img-upload-box { border: 1.5px dashed #c0c0c0; border-radius: 10px; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: background 0.15s; overflow: hidden; }
+    .img-upload-box:hover { background: #f0f0f0; border-color: #7F77DD; }
+    .img-upload-box .upload-label { font-size: 11px; color: #999; text-align: center; padding: 0 8px; pointer-events: none; }
+    .img-upload-box .upload-icon { font-size: 26px; pointer-events: none; }
+    .img-upload-box img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 9px; }
+    .player-photo-box { width: 110px; height: 145px; flex-shrink: 0; }
+    .club-logo-box { width: 75px; height: 75px; flex-shrink: 0; }
+    .mapa-box { min-height: 160px; } .mapa-box img { object-fit: contain; }
+    .lesion-box { min-height: 130px; } .lesion-box img { object-fit: contain; }
+    .scout-logo-box { width: 100px; height: 85px; flex-shrink: 0; } .scout-logo-box img { object-fit: contain; }
+    input[type="file"] { display: none; }
+    .sistema-box { border: 1px solid #1e3a6e; border-radius: 8px; overflow: hidden; }
+    .sistema-header { padding: 6px 12px; background: #0d2148; border-bottom: 1px solid #1e3a6e; font-size: 11px; font-weight: 600; color: #a8c4f0; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sistema-inner { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .hist-entry { display: grid; grid-template-columns: 52px 1fr 48px; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+    .hist-entry:last-child { border-bottom: none; }
+    .club-img { width: 46px; height: 46px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; flex-shrink: 0; font-size: 22px; }
+    .club-img img { width: 100%; height: 100%; object-fit: contain; display: none; }
+    .add-btn { font-size: 12px; padding: 5px 12px; border-radius: 7px; border: 1px solid #d0d0d0; background: transparent; color: #555; cursor: pointer; transition: background 0.15s; }
+    .add-btn:hover { background: #f0f0f0; }
+    .analisis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .analisis-card { border: 1px solid #1e3a6e; border-radius: 8px; overflow: hidden; }
+    .analisis-header { padding: 8px 12px; background: #0d2148; border-bottom: 1px solid #1e3a6e; display: flex; align-items: center; justify-content: space-between; }
+    .analisis-title { font-size: 12px; font-weight: 600; color: #fff; }
+    .score-select { font-size: 12px; border: 1px solid #e0e0e0; border-radius: 5px; background: #fff; color: #555; cursor: pointer; padding: 2px 6px; }
+    .analisis-body { padding: 10px; }
+    .analisis-body textarea { width: 100%; border: none; background: transparent; resize: vertical; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; line-height: 1.7; color: #1a1a1a; outline: none; min-height: 130px; white-space: pre-wrap; word-break: break-word; }
+    .rec-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .rec-tag { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid #d0d0d0; cursor: pointer; color: #555; background: transparent; transition: all 0.15s; font-family: 'Segoe UI', Arial, sans-serif; }
+    .rec-tag:hover { background: #f0f0f0; }
+    .rec-tag.active-green { background: #E1F5EE; color: #085041; border-color: #5DCAA5; }
+    .rec-tag.active-amber { background: #FAEEDA; color: #854F0B; border-color: #EF9F27; }
+    .rec-tag.active-red { background: #FCEBEB; color: #A32D2D; border-color: #E24B4A; }
+    .scout-bottom { display: flex; gap: 16px; align-items: flex-start; }
+    .player-photos { display: flex; gap: 12px; align-items: flex-start; flex-shrink: 0; }
+    @media (max-width:600px) {
+      .page-wrapper{margin:12px auto;padding:0 10px 40px;} .top-bar{flex-direction:column;gap:10px;} .btn-pdf{width:100%;justify-content:center;}
+      .r2,.r3,.r4{grid-template-columns:1fr;} .analisis-grid{grid-template-columns:1fr;} .sistema-inner{grid-template-columns:1fr;} .player-top{flex-direction:column;align-items:center;} .scout-bottom{flex-direction:column;align-items:center;} .player-photos{flex-direction:column;}
+    }
+    @media (min-width:601px) and (max-width:860px) { .r4{grid-template-columns:1fr 1fr;} .r3{grid-template-columns:1fr 1fr;} }
+    @media print {
+      .top-bar{display:none !important;} body{background:#0b1b3a !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+      .page-wrapper{margin:0;padding:4px;} .block{page-break-inside:avoid;overflow:visible !important;}
+      textarea{overflow:visible !important;height:auto !important;white-space:pre-wrap !important;word-break:break-word !important;}
+      .analisis-body{overflow:visible !important;} .fval{overflow:visible !important;height:auto !important;}
+      .img-upload-box .upload-icon,.img-upload-box .upload-label{display:none !important;}
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <div class="top-bar">
+    <h1>&#9917; Informe Neto</h1>
+    <button class="btn-pdf" onclick="window.print()">&#128438;&nbsp; Imprimir / Guardar PDF</button>
+  </div>
+
+  <div id="informe">
+
+    <!-- BLOQUE 0 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b0">Bloque 0</span><span class="bh">Ficha del jugador</span></div>
+      <div class="block-body">
+        <div class="player-top">
+          <!-- IMÁGENES: JUGADOR + CLUB -->
+          <div class="player-photos">
+            <div class="field">
+              <span class="flabel">Foto del jugador</span>
+              <div class="img-upload-box player-photo-box" id="player-photo-box" onclick="document.getElementById('player-photo-input').click()">
+                <img id="player-photo-img" alt="foto">
+                <span class="upload-icon">&#128100;</span>
+                <span class="upload-label">Subir foto</span>
+              </div>
+              <input type="file" id="player-photo-input" accept="image/*" onchange="loadImg('player-photo-input','player-photo-img','player-photo-box')">
+            </div>
+            <div class="field">
+              <span class="flabel">Escudo del club</span>
+              <div class="img-upload-box club-logo-box" id="club-logo-box" onclick="document.getElementById('club-logo-input').click()">
+                <img id="club-logo-img" alt="escudo">
+                <span class="upload-icon">&#128737;</span>
+                <span class="upload-label">Escudo</span>
+              </div>
+              <input type="file" id="club-logo-input" accept="image/*" onchange="loadImg('club-logo-input','club-logo-img','club-logo-box')">
+            </div>
+          </div>
+
+          <!-- DATOS DEL JUGADOR -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+            <div class="row r4">
+              <div class="field"><span class="flabel">Nombre completo</span><input type="text" class="fval" placeholder="Ej: Juan Perez"></div>
+              <div class="field"><span class="flabel">Fecha de nacimiento</span><input type="date" class="fval"></div>
+              <div class="field"><span class="flabel">Nacionalidad</span><input type="text" class="fval" placeholder="Ej: Argentina"></div>
+              <div class="field"><span class="flabel">Altura (cm)</span><input type="number" class="fval" placeholder="182"></div>
+            </div>
+            <div class="row r2">
+              <div class="field"><span class="flabel">Posicion principal</span><select class="fval"><option value="">-- seleccionar --</option><option>Portero</option><option>Lateral derecho</option><option>Central</option><option>Lateral izquierdo</option><option>Mediocampista defensivo</option><option>Mediocampista central</option><option>Mediapunta / Enganche</option><option>Extremo derecho</option><option>Extremo izquierdo</option><option>Segundo delantero</option><option>Delantero centro</option></select></div>
+              <div class="field"><span class="flabel">Posiciones alternativas</span><input type="text" class="fval" placeholder="Ej: Extremo derecho, Mediapunta"></div>
+            </div>
+            <div class="row r2">
+              <div class="field"><span class="flabel">Pie habil</span><select class="fval"><option value="">-- seleccionar --</option><option>Derecho</option><option>Izquierdo</option><option>Ambidiestro</option></select></div>
+              <div class="field"><span class="flabel">Estado contractual</span><select class="fval"><option value="">-- seleccionar --</option><option>Libre</option><option>Con contrato</option><option>Prestamo</option><option>Por vencer</option></select></div>
+            </div>
+            <div class="row r2">
+              <div class="field"><span class="flabel">Fecha fin de contrato</span><input type="date" class="fval"></div>
+              <div class="field"><span class="flabel">Representante</span><input type="text" class="fval" placeholder="Nombre del representante / Agencia"></div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row r2">
+          <div class="sistema-box">
+            <div class="sistema-header">Sistema principal</div>
+            <div class="sistema-inner">
+              <div class="field"><span class="flabel">Formacion</span><select class="fval"><option value="">-- seleccionar --</option><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>4-4-2 rombo</option><option>3-5-2</option><option>3-4-3</option><option>3-4-2-1</option><option>5-3-2</option><option>5-4-1</option><option>4-1-4-1</option><option>4-3-2-1</option><option>4-5-1</option><option>4-2-2-2</option><option>3-6-1</option><option>4-2-4</option><option>5-2-3</option></select></div>
+              <div class="field"><span class="flabel">Rol</span><select class="fval"><option value="">-- seleccionar --</option><option>Portero (1)</option><option>Lateral derecho (2)</option><option>Central derecho (3)</option><option>Central izquierdo (4)</option><option>Lateral izquierdo (5)</option><option>Mediocampista defensivo (6)</option><option>Mediocampista central (8)</option><option>Mediapunta (10)</option><option>Extremo derecho</option><option>Extremo izquierdo</option><option>Segundo delantero</option><option>Delantero centro (9)</option><option>Falso 9</option><option>Carrilero derecho</option><option>Carrilero izquierdo</option><option>Volante de contencion</option><option>Volante box-to-box</option></select></div>
+            </div>
+          </div>
+          <div class="sistema-box">
+            <div class="sistema-header">Sistema alternativo</div>
+            <div class="sistema-inner">
+              <div class="field"><span class="flabel">Formacion</span><select class="fval"><option value="">-- seleccionar --</option><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>4-4-2 rombo</option><option>3-5-2</option><option>3-4-3</option><option>3-4-2-1</option><option>5-3-2</option><option>5-4-1</option><option>4-1-4-1</option><option>4-3-2-1</option><option>4-5-1</option><option>4-2-2-2</option><option>3-6-1</option><option>4-2-4</option><option>5-2-3</option></select></div>
+              <div class="field"><span class="flabel">Rol</span><select class="fval"><option value="">-- seleccionar --</option><option>Portero (1)</option><option>Lateral derecho (2)</option><option>Central derecho (3)</option><option>Central izquierdo (4)</option><option>Lateral izquierdo (5)</option><option>Mediocampista defensivo (6)</option><option>Mediocampista central (8)</option><option>Mediapunta (10)</option><option>Extremo derecho</option><option>Extremo izquierdo</option><option>Segundo delantero</option><option>Delantero centro (9)</option><option>Falso 9</option><option>Carrilero derecho</option><option>Carrilero izquierdo</option><option>Volante de contencion</option><option>Volante box-to-box</option></select></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 1 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b1">Bloque 1</span><span class="bh">Mapa visual</span></div>
+      <div class="block-body">
+        <div class="row r2">
+          <div class="field"><span class="flabel">Imagen de posicion</span>
+            <div class="img-upload-box mapa-box" id="pos-box" onclick="document.getElementById('pos-input').click()">
+              <img id="pos-img" alt="posicion"><span class="upload-icon">&#128205;</span><span class="upload-label">Subir imagen de posicion</span>
+            </div>
+            <input type="file" id="pos-input" accept="image/*" onchange="loadImg('pos-input','pos-img','pos-box')">
+          </div>
+          <div class="field"><span class="flabel">Mapa de calor (heatmap)</span>
+            <div class="img-upload-box mapa-box" id="heat-box" onclick="document.getElementById('heat-input').click()">
+              <img id="heat-img" alt="heatmap"><span class="upload-icon">&#128293;</span><span class="upload-label">Subir heatmap</span>
+            </div>
+            <input type="file" id="heat-input" accept="image/*" onchange="loadImg('heat-input','heat-img','heat-box')">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 2 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b2">Bloque 2</span><span class="bh">Estadisticas de rendimiento</span></div>
+      <div class="block-body">
+        <div class="row r4">
+          <div class="field"><span class="flabel">Goles</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Asistencias</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Remates</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">xG</span><input type="number" step="0.01" class="fval" placeholder="0.00"></div>
+        </div>
+        <div class="row r4">
+          <div class="field"><span class="flabel">Recuperaciones</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Entradas</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Intercepciones</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Despejes</span><input type="number" class="fval" placeholder="0"></div>
+        </div>
+        <div class="row r4">
+          <div class="field"><span class="flabel">% pases completados</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Pases clave</span><input type="number" class="fval" placeholder="0"></div>
+          <div class="field"><span class="flabel">Km recorridos</span><input type="number" step="0.1" class="fval" placeholder="0.0"></div>
+          <div class="field"><span class="flabel">Sprint max (km/h)</span><input type="number" step="0.1" class="fval" placeholder="0.0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 3 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b3">Bloque 3</span><span class="bh">Historial</span></div>
+      <div class="block-body">
+        <div class="row r2">
+          <div class="field">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span class="flabel">Clubes</span>
+              <button class="add-btn" onclick="addClub()">+ Agregar club</button>
+            </div>
+            <div id="club-list">
+              <div class="hist-entry">
+                <div class="club-img" onclick="triggerClubImg(this)">
+                  <img alt="escudo"><span class="shield-icon">&#128737;</span>
+                  <input type="file" accept="image/*" onchange="loadClubImg(this)">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <input type="text" class="fval" placeholder="Nombre del club" style="padding:5px 8px;font-size:12px;">
+                  <input type="text" class="fval" placeholder="Temporada / Anio" style="padding:5px 8px;font-size:12px;">
+                </div>
+                <input type="text" class="fval" placeholder="PJ" style="padding:5px 8px;font-size:12px;text-align:center;">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span class="flabel">Lesiones</span>
+              <button class="add-btn" onclick="document.getElementById('lesion-input').click()">Subir imagen</button>
+              <input type="file" id="lesion-input" accept="image/*" onchange="loadImg('lesion-input','lesion-img','lesion-box')">
+            </div>
+            <div class="img-upload-box lesion-box" id="lesion-box" onclick="document.getElementById('lesion-input').click()">
+              <img id="lesion-img" alt="lesiones"><span class="upload-icon">&#129467;</span><span class="upload-label">Subir imagen de lesiones</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 4 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b4">Bloque 4</span><span class="bh">Analisis del jugador</span></div>
+      <div class="block-body">
+        <div class="analisis-grid">
+          <div class="analisis-card">
+            <div class="analisis-header">
+              <span class="analisis-title">&#9917; Tecnico</span>
+              <select class="score-select"><option>-- punt. --</option><option>1 / 5</option><option>2 / 5</option><option>3 / 5</option><option>4 / 5</option><option>5 / 5</option></select>
+            </div>
+            <div class="analisis-body"><textarea rows="7" placeholder="Control, pase, regate, definicion, primer toque, manejo en espacios reducidos..."></textarea></div>
+          </div>
+          <div class="analisis-card">
+            <div class="analisis-header">
+              <span class="analisis-title">&#129517; Tactico</span>
+              <select class="score-select"><option>-- punt. --</option><option>1 / 5</option><option>2 / 5</option><option>3 / 5</option><option>4 / 5</option><option>5 / 5</option></select>
+            </div>
+            <div class="analisis-body"><textarea rows="7" placeholder="Lectura del juego, posicionamiento, presion, movimientos sin balon, transiciones..."></textarea></div>
+          </div>
+          <div class="analisis-card">
+            <div class="analisis-header">
+              <span class="analisis-title">&#127939; Fisico</span>
+              <select class="score-select"><option>-- punt. --</option><option>1 / 5</option><option>2 / 5</option><option>3 / 5</option><option>4 / 5</option><option>5 / 5</option></select>
+            </div>
+            <div class="analisis-body"><textarea rows="7" placeholder="Velocidad, potencia, resistencia, explosividad, duelos aereos..."></textarea></div>
+          </div>
+          <div class="analisis-card">
+            <div class="analisis-header">
+              <span class="analisis-title">&#129504; Psicologico</span>
+              <select class="score-select"><option>-- punt. --</option><option>1 / 5</option><option>2 / 5</option><option>3 / 5</option><option>4 / 5</option><option>5 / 5</option></select>
+            </div>
+            <div class="analisis-body"><textarea rows="7" placeholder="Liderazgo, concentracion, actitud competitiva, manejo de presion, caracter..."></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 4.5 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b4">Bloque 4.5</span><span class="bh">&#128241; Observacion de Redes Sociales</span></div>
+      <div class="block-body">
+        <div class="row r3" style="margin-bottom:10px;">
+          <div class="field"><span class="flabel">Instagram</span><input type="text" class="fval" placeholder="@usuario"></div>
+          <div class="field"><span class="flabel">Twitter / X</span><input type="text" class="fval" placeholder="@usuario"></div>
+          <div class="field"><span class="flabel">TikTok</span><input type="text" class="fval" placeholder="@usuario"></div>
+        </div>
+        <div class="row r2" style="margin-bottom:10px;">
+          <div class="field"><span class="flabel">YouTube / Canal</span><input type="text" class="fval" placeholder="URL o nombre del canal"></div>
+          <div class="field"><span class="flabel">Otra Red / Transfermarkt</span><input type="text" class="fval" placeholder="URL o usuario"></div>
+        </div>
+        <div class="field">
+          <span class="flabel">Observaciones de Redes</span>
+          <textarea class="fval" rows="5" placeholder="Describi la presencia digital del jugador: tipo de contenido, imagen que proyecta, interaccion con hinchas, sponsors, declaraciones publicas, actitud fuera del campo..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 5 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b5">Bloque 5</span><span class="bh">Conclusion y recomendacion</span></div>
+      <div class="block-body">
+        <div class="field" style="margin-bottom:14px;">
+          <span class="flabel">Conclusion general</span>
+          <textarea class="fval" rows="5" placeholder="Sintesis global del jugador, potencial de mercado, encaje en el sistema del club..."></textarea>
+        </div>
+        <div class="row r2">
+          <div class="field">
+            <span class="flabel">Recomendacion</span>
+            <div class="rec-row" id="rec-row">
+              <button class="rec-tag" onclick="setRec(this,'active-green')">Contratar</button>
+              <button class="rec-tag" onclick="setRec(this,'active-amber')">Seguir observando</button>
+              <button class="rec-tag" onclick="setRec(this,'active-red')">Descartar</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="flabel">Puntuacion global (1-5)</span>
+            <div class="rec-row" id="score-row">
+              <button class="rec-tag" onclick="setScore(this)">1</button>
+              <button class="rec-tag" onclick="setScore(this)">2</button>
+              <button class="rec-tag" onclick="setScore(this)">3</button>
+              <button class="rec-tag" onclick="setScore(this)">4</button>
+              <button class="rec-tag" onclick="setScore(this)">5</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 6 -->
+    <div class="block">
+      <div class="block-header"><span class="blabel b6">Bloque 6</span><span class="bh">Datos del scout</span></div>
+      <div class="block-body">
+        <div class="scout-bottom">
+          <div class="field">
+            <span class="flabel">Logo / Firma</span>
+            <div class="img-upload-box scout-logo-box" id="scout-logo-box" onclick="document.getElementById('scout-logo-input').click()">
+              <img id="scout-logo-img" alt="logo"><span class="upload-icon">&#9997;</span><span class="upload-label">Logo</span>
+            </div>
+            <input type="file" id="scout-logo-input" accept="image/*" onchange="loadImg('scout-logo-input','scout-logo-img','scout-logo-box')">
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+            <div class="row r3">
+              <div class="field"><span class="flabel">Nombre del scout</span><input type="text" class="fval" placeholder="Nombre completo"></div>
+              <div class="field"><span class="flabel">Cargo</span><input type="text" class="fval" placeholder="Ej: Scout principal"></div>
+              <div class="field"><span class="flabel">Organizacion / Club</span><input type="text" class="fval" placeholder="Ej: Club Atletico XYZ"></div>
+            </div>
+            <div class="field"><span class="flabel">Contacto</span><input type="text" class="fval" placeholder="Email o telefono"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function loadImg(inputId, imgId, boxId) {
+  var input = document.getElementById(inputId);
+  var img = document.getElementById(imgId);
+  var box = document.getElementById(boxId);
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    img.src = e.target.result;
+    img.style.display = 'block';
+    box.querySelectorAll('.upload-icon,.upload-label').forEach(function(el){ el.style.display='none'; });
+  };
+  reader.readAsDataURL(file);
+}
+function triggerClubImg(el) { el.querySelector('input[type=file]').click(); }
+function loadClubImg(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var box = input.parentElement;
+  var img = box.querySelector('img');
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    img.src = e.target.result;
+    img.style.display = 'block';
+    box.querySelector('.shield-icon').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function addClub() {
+  var list = document.getElementById('club-list');
+  var entry = document.createElement('div');
+  entry.className = 'hist-entry';
+  entry.innerHTML = '<div class="club-img" onclick="triggerClubImg(this)"><img alt="escudo"><span class="shield-icon">&#128737;</span><input type="file" accept="image/*" onchange="loadClubImg(this)"></div><div style="display:flex;flex-direction:column;gap:6px;"><input type="text" class="fval" placeholder="Nombre del club" style="padding:5px 8px;font-size:12px;"><input type="text" class="fval" placeholder="Temporada / Anio" style="padding:5px 8px;font-size:12px;"></div><input type="text" class="fval" placeholder="PJ" style="padding:5px 8px;font-size:12px;text-align:center;">';
+  list.appendChild(entry);
+}
+function setRec(btn, cls) {
+  document.querySelectorAll('#rec-row .rec-tag').forEach(function(b){ b.className='rec-tag'; });
+  btn.classList.add(cls);
+}
+function setScore(btn) {
+  document.querySelectorAll('#score-row .rec-tag').forEach(function(b){ b.className='rec-tag'; });
+  btn.classList.add('active-amber');
+}
+</script>
+</body>
+</html>
