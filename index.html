@@ -425,15 +425,17 @@ function setScore(btn) {
   const im=new Image();im.onload=()=>{try{const max=1400,scale=Math.min(1,max/Math.max(im.naturalWidth||1,im.naturalHeight||1));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.naturalWidth*scale));c.height=Math.max(1,Math.round(im.naturalHeight*scale));c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))}catch(e){resolve(src)}};im.onerror=()=>resolve(src);im.src=src;
  });}
  async function capture(){
-  const fields=Array.from(document.querySelectorAll('input,select,textarea')).filter(el=>el.type!=='file').map((el,i)=>({i,tag:el.tagName,type:el.type||'',value:el.value,checked:!!el.checked}));
+  const fields=Array.from(document.querySelectorAll('input,select,textarea')).filter(el=>el.type!=='file'&&!el.closest('#scoutpro-save-panel')).map((el,i)=>({i,tag:el.tagName,type:el.type||'',value:el.value,checked:!!el.checked}));
   const images=[];for(const [i,img] of Array.from(document.images).entries()){let src=img.getAttribute('src')||'';if(src.startsWith('data:image/'))src=await compressImage(src);images.push({i,src})}
-  const report=document.getElementById('reportOutput');
+  const report=document.getElementById('reportOutput')||document.getElementById('informe');
   return {fields,images,reportHTML:report?report.innerHTML:null,reportDisplay:report?report.style.display:null,scrollY:window.scrollY};
  }
  function restore(p){
-  (p.fields||[]).forEach(f=>{const el=Array.from(document.querySelectorAll('input,select,textarea')).filter(el=>el.type!=='file')[f.i];if(!el)return;el.value=f.value??'';if(el.type==='checkbox'||el.type==='radio')el.checked=!!f.checked;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))});
+  const report=document.getElementById('reportOutput')||document.getElementById('informe');
+  if(report&&p.reportHTML!==null&&p.reportHTML!==undefined)report.innerHTML=p.reportHTML;
+  (p.fields||[]).forEach(f=>{const el=Array.from(document.querySelectorAll('input,select,textarea')).filter(el=>el.type!=='file'&&!el.closest('#scoutpro-save-panel'))[f.i];if(!el)return;el.value=f.value??'';if(el.type==='checkbox'||el.type==='radio')el.checked=!!f.checked;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))});
   (p.images||[]).forEach(x=>{const img=document.images[x.i];if(img&&x.src){img.src=x.src;img.style.display='block';}});
-  const report=document.getElementById('reportOutput');if(report&&p.reportHTML!==null&&p.reportHTML!==undefined){report.innerHTML=p.reportHTML;report.style.display=p.reportDisplay||'block';const gen=document.querySelector('.generate-btn');if(gen&&report.style.display!=='none')gen.style.display='none'}
+  if(report&&p.reportHTML!==null&&p.reportHTML!==undefined){report.style.display=p.reportDisplay||'block';const gen=document.querySelector('.generate-btn');if(gen&&report.style.display!=='none')gen.style.display='none'}
   status('Informe recuperado. Revisá los datos antes de editar o imprimir.');
  }
  function fieldValue(selector){const el=document.querySelector(selector);return el?(el.value||'').trim():''}
