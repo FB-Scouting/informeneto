@@ -459,7 +459,7 @@ function setScore(btn) {
   else if(d.type==='scoutpro-report:save-result'){ $('spr-save').disabled=false;if(d.ok){status('Guardado confirmado por SCOUTPRO. Actualizando historial…');send('list')}else status('SCOUTPRO no confirmó el guardado. Revisá el estado de la nube e intentá de nuevo.')}
   else if(d.type==='scoutpro-report:load-result'){if(d.record){restore(d.record.payload||{});$('spr-list').value=d.record.id}else status('No se encontró ese informe.')}
   else if(d.type==='scoutpro-report:delete-result'){ $('spr-delete').disabled=false;if(d.ok){status('Informe eliminado. Actualizando historial…');$('spr-list').value='';send('list')}else status('No se pudo eliminar el informe.')}
-  else if(d.type==='scoutpro-report:error'){if(d.requestId&&pending.has(d.requestId)&&pending.get(d.requestId).type==='save')$('spr-save').disabled=false;status('Error: '+(d.error||'No se pudo completar la operación.'))}
+  else if(d.type==='scoutpro-report:error'){if(d.requestId&&pending.has(d.requestId)&&pending.get(d.requestId).type==='save')$('spr-save').disabled=false;if(d.requestId&&pending.has(d.requestId)&&pending.get(d.requestId).type==='delete')$('spr-delete').disabled=false;status('Error: '+(d.error||'No se pudo completar la operación.'))}
  });
  if(window.parent!==window){send('list')}else status('Para usar la nube, abrí este generador desde el módulo Informes de SCOUTPRO.');
 })();
