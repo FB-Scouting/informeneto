@@ -450,7 +450,7 @@ function setScore(btn) {
  window.addEventListener('message',ev=>{
   if(ev.origin!==ORIGIN||ev.source!==window.parent||!ev.data||ev.data.module!==MODULE)return;
   const d=ev.data;
-  if(d.type==='scoutpro-report:list-result'){records=d.records||[];const sel=$('spr-list');sel.innerHTML='';if(!records.length){sel.add(new Option('Sin informes guardados',''));status('Todavía no hay informes guardados en este módulo.');return}records.sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));records.forEach(r=>sel.add(new Option([r.fecha,r.jugador||r.titulo||'Informe'].filter(Boolean).join(' · '),r.id)));status('Historial sincronizado: '+records.length+' informe(s).')}
+  if(d.type==='scoutpro-report:refresh'){send('list')}else if(d.type==='scoutpro-report:list-result'){records=d.records||[];const sel=$('spr-list');sel.innerHTML='';if(!records.length){sel.add(new Option('Sin informes guardados',''));status('Todavía no hay informes guardados en este módulo.');return}records.sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));records.forEach(r=>sel.add(new Option([r.fecha,r.jugador||r.titulo||'Informe'].filter(Boolean).join(' · '),r.id)));status('Historial sincronizado: '+records.length+' informe(s).')}
   else if(d.type==='scoutpro-report:save-result'){if(d.ok){status('Informe guardado en SCOUTPRO. Sincronizando con la nube…');send('list')}else status('No se pudo guardar.')}
   else if(d.type==='scoutpro-report:load-result'){if(d.record){restore(d.record.payload||{});$('spr-list').value=d.record.id}else status('No se encontró ese informe.')}
   else if(d.type==='scoutpro-report:error'){status('Error: '+(d.error||'No se pudo completar la operación.'))}
