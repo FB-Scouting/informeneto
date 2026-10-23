@@ -401,5 +401,62 @@ function setScore(btn) {
   btn.classList.add('active-amber');
 }
 </script>
+
+<script id="scoutpro-cloud-reports">
+(function(){
+ const MODULE="ineto",ORIGIN='https://fb-scouting.github.io';
+ const style=document.createElement('style');
+ style.textContent='#scoutpro-save-panel{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:12px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#e2e8f0;font:14px Arial,sans-serif}#scoutpro-save-panel button,#scoutpro-save-panel select{padding:9px 12px;border-radius:6px;border:1px solid #475569;background:#1e293b;color:#f8fafc}#scoutpro-save-status{flex-basis:100%;font-size:12px;color:#94a3b8}';
+ document.head.appendChild(style);
+ const panel=document.createElement('section');panel.id='scoutpro-save-panel';
+ panel.innerHTML='<strong>SCOUTPRO · Informes guardados</strong><button type="button" id="spr-save">Guardar informe</button><select id="spr-list"><option value="">Cargando historial…</option></select><button type="button" id="spr-load">Abrir guardado</button><span id="scoutpro-save-status">Guardá y recuperá este informe desde tu cuenta SCOUTPRO.</span>';
+ const top=document.querySelector('.top-bar')||document.body.firstElementChild;
+ if(top&&top.parentNode)top.parentNode.insertBefore(panel,top.nextSibling);else document.body.prepend(panel);
+ const $=id=>document.getElementById(id), status=t=>{$('scoutpro-save-status').textContent=t};
+ const pending=new Map();let seq=0,records=[];
+ function send(type,extra){if(window.parent===window){status('Abrí esta herramienta desde SCOUTPRO para guardar o recuperar informes en la nube.');return null}
+  const requestId=MODULE+'-'+Date.now()+'-'+(++seq);
+  pending.set(requestId,{type,extra});
+  window.parent.postMessage(Object.assign({type:'scoutpro-report:'+type,requestId,module:MODULE},extra||{}),ORIGIN);
+  return requestId;
+ }
+ function compressImage(src){return new Promise(resolve=>{
+  if(!src||!src.startsWith('data:image/'))return resolve(src);
+  const im=new Image();im.onload=()=>{try{const max=1400,scale=Math.min(1,max/Math.max(im.naturalWidth||1,im.naturalHeight||1));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.naturalWidth*scale));c.height=Math.max(1,Math.round(im.naturalHeight*scale));c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))}catch(e){resolve(src)}};im.onerror=()=>resolve(src);im.src=src;
+ });}
+ async function capture(){
+  const fields=Array.from(document.querySelectorAll('input,select,textarea')).filter(el=>el.type!=='file').map((el,i)=>({i,tag:el.tagName,type:el.type||'',value:el.value,checked:!!el.checked}));
+  const images=[];for(const [i,img] of Array.from(document.images).entries()){let src=img.getAttribute('src')||'';if(src.startsWith('data:image/'))src=await compressImage(src);images.push({i,src})}
+  const report=document.getElementById('reportOutput');
+  return {fields,images,reportHTML:report?report.innerHTML:null,reportDisplay:report?report.style.display:null,scrollY:window.scrollY};
+ }
+ function restore(p){
+  (p.fields||[]).forEach(f=>{const el=Array.from(document.querySelectorAll('input,select,textarea')).filter(el=>el.type!=='file')[f.i];if(!el)return;el.value=f.value??'';if(el.type==='checkbox'||el.type==='radio')el.checked=!!f.checked;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))});
+  (p.images||[]).forEach(x=>{const img=document.images[x.i];if(img&&x.src){img.src=x.src;img.style.display='block';}});
+  const report=document.getElementById('reportOutput');if(report&&p.reportHTML!==null&&p.reportHTML!==undefined){report.innerHTML=p.reportHTML;report.style.display=p.reportDisplay||'block';const gen=document.querySelector('.generate-btn');if(gen&&report.style.display!=='none')gen.style.display='none'}
+  status('Informe recuperado. Revisá los datos antes de editar o imprimir.');
+ }
+ function fieldValue(selector){const el=document.querySelector(selector);return el?(el.value||'').trim():''}
+ function save(){
+  const btn=$('spr-save');btn.disabled=true;status('Preparando informe…');
+  capture().then(payload=>{
+   const jugador=MODULE==='igen'?fieldValue('#playerName'):fieldValue('.player-top input.fval');
+   const fecha=new Date().toISOString().slice(0,10);
+   send('save',{record:{fecha,jugador,titulo:jugador|| (MODULE==='igen'?'Informe automático':'Informe neto'),payload}});
+  }).catch(e=>status('No se pudo preparar el informe: '+e.message)).finally(()=>{btn.disabled=false});
+ }
+ $('spr-save').addEventListener('click',save);
+ $('spr-load').addEventListener('click',()=>{const id=$('spr-list').value;if(!id){status('Elegí un informe del historial.');return}send('load',{id})});
+ window.addEventListener('message',ev=>{
+  if(ev.origin!==ORIGIN||ev.source!==window.parent||!ev.data||ev.data.module!==MODULE)return;
+  const d=ev.data;
+  if(d.type==='scoutpro-report:list-result'){records=d.records||[];const sel=$('spr-list');sel.innerHTML='';if(!records.length){sel.add(new Option('Sin informes guardados',''));status('Todavía no hay informes guardados en este módulo.');return}records.sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));records.forEach(r=>sel.add(new Option([r.fecha,r.jugador||r.titulo||'Informe'].filter(Boolean).join(' · '),r.id)));status('Historial sincronizado: '+records.length+' informe(s).')}
+  else if(d.type==='scoutpro-report:save-result'){if(d.ok){status('Informe guardado en SCOUTPRO. Sincronizando con la nube…');send('list')}else status('No se pudo guardar.')}
+  else if(d.type==='scoutpro-report:load-result'){if(d.record){restore(d.record.payload||{});$('spr-list').value=d.record.id}else status('No se encontró ese informe.')}
+  else if(d.type==='scoutpro-report:error'){status('Error: '+(d.error||'No se pudo completar la operación.'))}
+ });
+ if(window.parent!==window){send('list')}else status('Para usar la nube, abrí este generador desde el módulo Informes de SCOUTPRO.');
+})();
+</script>
 </body>
 </html>
